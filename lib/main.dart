@@ -1,8 +1,12 @@
-import 'dart:html';
+//import 'dart:html';
 
 import 'package:flutter/material.dart';
+import 'package:http/http.dart' as http;
+import 'dart:convert' as convert;
 
-void main() {
+import 'city.dart';
+
+void main() async {
   runApp(MyApp());
 }
 
@@ -19,19 +23,25 @@ class MyApp extends StatelessWidget {
   }
 }
 
-class City {
-  String name;
-  double degreeC;
-  String logo;
-
-  City(this.name, this.degreeC, this.logo);
-}
-
-City getCityInfo(String cityName) {
-  String _name = cityName;
-  double _degreeC = 22.0;
-  String _logo = "https://cdn.weatherapi.com/weather/64x64/day/116.png";
-  return City(_name, _degreeC, _logo);
+Future<Map<String, dynamic>?> fetchWeatherData(String cityName) async {
+  String apiURL =
+      "api.weatherapi.com/v1/forecast.json?key=9804259f17b34b729aa213344232412&q=" +
+          "London" +
+          "&days=8";
+  var url =
+      "http://api.weatherapi.com/v1/forecast.json?key=9804259f17b34b729aa213344232412&q=" +
+          cityName +
+          "&days=8";
+  var response = await http.get(Uri.parse(url));
+  if (response.statusCode == 200) {
+    var jsonResponse =
+        convert.jsonDecode(response.body) as Map<String, dynamic>;
+    print(jsonResponse);
+    return jsonResponse;
+  } else {
+    print('Request failed with status: ${response.statusCode}.');
+    return null;
+  }
 }
 
 class MyHomePage extends StatefulWidget {
@@ -41,14 +51,19 @@ class MyHomePage extends StatefulWidget {
 
 class _MyHomePageState extends State<MyHomePage> {
   List<String> listItems = ["New York", "London"];
-  City _city = getCityInfo("");
+  City? _city;
+
+  Future<void> updateCityInfo(String cityName) async {
+    var weatherDataJson = await fetchWeatherData(cityName);
+    _city = City.fromJson(weatherDataJson);
+  }
 
   TextEditingController newItemController = TextEditingController();
 
   @override
   void initState() {
     super.initState();
-    _city = getCityInfo(listItems[0]);
+    updateCityInfo(listItems[0]);
   }
 
   @override
@@ -133,14 +148,16 @@ class _MyHomePageState extends State<MyHomePage> {
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
                   Text(
-                    _city.name,
+                    _city?.name ?? 'Unknown City',
+                    //"Name_Placeholder",
                     style: TextStyle(fontSize: 20, color: Colors.white),
                   ),
                   Image.network(
                     "https://cdn.weatherapi.com/weather/64x64/day/116.png",
                   ),
                   Text(
-                    _city.degreeC.toString() + "°C",
+                    ((_city?.temp_c) ?? "Unknown Degree") + "°C",
+                    //"Degree_Placeholder",
                     style: TextStyle(fontSize: 40, color: Colors.white),
                   ),
                 ],
@@ -188,7 +205,9 @@ class _MyHomePageState extends State<MyHomePage> {
 
   void _selectCity(String cityName) {
     setState(() {
-      _city = getCityInfo(cityName);
+      //_city = getCityInfo(cityName);
+
+      updateCityInfo(cityName);
     });
   }
 
