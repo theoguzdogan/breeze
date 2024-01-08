@@ -19,11 +19,11 @@ class City {
   //String? precipitation_in;
   String? condition_text;
   String? condition_icon;
-  // String min_c;
+  String? min_c;
   // //String min_f;
   // String avg_c;
   // //String avg_f;
-  // String max_c;
+  String? max_c;
   // //String max_f;
 
   // String hour1_c;
@@ -135,5 +135,7 @@ class City {
     precipitation_mm = json?['current']['precip_mm'].toString();
     condition_text = json?['current']['condition']['text'];
     condition_icon = json?['current']['condition']['icon'];
+    max_c = json?['forecast']['forecastday'][0]['day']['maxtemp_c'].toString();
+    min_c = json?['forecast']['forecastday'][0]['day']['mintemp_c'].toString();
   }
 }
