@@ -2,6 +2,7 @@
 
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
+import 'package:intl/intl.dart';
 import 'dart:convert' as convert;
 
 import 'city.dart';
@@ -67,6 +68,71 @@ class _MyHomePageState extends State<MyHomePage> {
       // setState to trigger a rebuild with the updated _city data
       setState(() {});
     });
+  }
+
+  Widget dayForecast(int dayDelta) {
+    String getDayOfWeek(String dateString) {
+      DateTime date = DateFormat('yyyy-MM-dd HH:mm').parse(dateString);
+      return DateFormat('EEEE').format(date);
+    }
+
+    return Row(
+      mainAxisAlignment: MainAxisAlignment.center,
+      children: [
+        Text(
+          'Carsamba',
+          style: TextStyle(
+              fontSize: 18, color: const Color.fromARGB(170, 255, 255, 255)),
+        ),
+        const SizedBox(width: 16.0),
+        Image.network(
+          height: 35,
+          width: 35,
+          //_city?.condition_icon ??
+          //    "https://cdn.weatherapi.com/weather/64x64/day/116.png",
+          "https://cdn.weatherapi.com/weather/64x64/day/116.png",
+        ),
+        const SizedBox(width: 16.0),
+        Text(
+          'Yüksek: 16°C',
+          style: TextStyle(
+              fontSize: 18, color: const Color.fromARGB(170, 255, 255, 255)),
+        ),
+        const SizedBox(width: 16.0),
+        Text(
+          'Düşük: 5°C',
+          style: TextStyle(
+              fontSize: 18, color: const Color.fromARGB(170, 255, 255, 255)),
+        ),
+      ],
+    );
+  }
+
+  Widget hourForecast(String date) {
+    return Column(
+      mainAxisAlignment: MainAxisAlignment.center,
+      children: [
+        const SizedBox(height: 10.0),
+        Text(
+          "12",
+          style: TextStyle(
+              fontSize: 18, color: const Color.fromARGB(170, 255, 255, 255)),
+        ),
+        Image.network(
+          height: 35,
+          width: 35,
+          //_city?.condition_icon ??
+          //    "https://cdn.weatherapi.com/weather/64x64/day/116.png",
+          "https://cdn.weatherapi.com/weather/64x64/day/116.png",
+        ),
+        Text(
+          "5°C",
+          style: TextStyle(
+              fontSize: 18, color: const Color.fromARGB(170, 255, 255, 255)),
+        ),
+        const SizedBox(height: 10.0),
+      ],
+    );
   }
 
   @override
@@ -263,12 +329,26 @@ class _MyHomePageState extends State<MyHomePage> {
                 ),
                 const SizedBox(height: 16.0),
                 Container(
-                  height: 87,
-                  decoration: BoxDecoration(
-                    color: Color.fromRGBO(255, 255, 255, 0.2),
-                    borderRadius: BorderRadius.circular(12),
-                  ),
-                ),
+                    decoration: BoxDecoration(
+                      color: Color.fromRGBO(255, 255, 255, 0.2),
+                      borderRadius: BorderRadius.circular(12),
+                    ),
+                    child: Row(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        hourForecast("date"),
+                        const SizedBox(width: 30.0),
+                        hourForecast("date"),
+                        const SizedBox(width: 30.0),
+                        hourForecast("date"),
+                        const SizedBox(width: 30.0),
+                        hourForecast("date"),
+                        const SizedBox(width: 30.0),
+                        hourForecast("date"),
+                        const SizedBox(width: 30.0),
+                        hourForecast("date")
+                      ],
+                    )), //hour-forecast
                 const SizedBox(height: 16.0),
                 Row(
                   children: [
@@ -468,15 +548,32 @@ class _MyHomePageState extends State<MyHomePage> {
                               color: const Color.fromARGB(170, 255, 255, 255)),
                         ),
                       ],
-                    )),
+                    )), //sunrise-sunset
                 const SizedBox(height: 16.0),
                 Container(
-                  height: 298,
-                  decoration: BoxDecoration(
-                    color: Color.fromRGBO(255, 255, 255, 0.2),
-                    borderRadius: BorderRadius.circular(12),
-                  ),
-                ),
+                    decoration: BoxDecoration(
+                      color: Color.fromRGBO(255, 255, 255, 0.2),
+                      borderRadius: BorderRadius.circular(12),
+                    ),
+                    child: Column(
+                      children: [
+                        const SizedBox(height: 15.0),
+                        dayForecast(0),
+                        const SizedBox(height: 10.0),
+                        dayForecast(1),
+                        const SizedBox(height: 10.0),
+                        dayForecast(2),
+                        const SizedBox(height: 10.0),
+                        dayForecast(3),
+                        const SizedBox(height: 10.0),
+                        dayForecast(4),
+                        const SizedBox(height: 10.0),
+                        dayForecast(5),
+                        const SizedBox(height: 10.0),
+                        dayForecast(6),
+                        const SizedBox(height: 15.0),
+                      ],
+                    )),
               ],
             ),
           ),
