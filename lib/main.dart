@@ -25,12 +25,8 @@ class MyApp extends StatelessWidget {
 }
 
 Future<Map<String, dynamic>?> fetchWeatherData(String cityName) async {
-  String apiURL =
-      "api.weatherapi.com/v1/forecast.json?key=9804259f17b34b729aa213344232412&q=" +
-          "London" +
-          "&days=8";
   var url =
-      "http://api.weatherapi.com/v1/forecast.json?key=9804259f17b34b729aa213344232412&q=" +
+      "http://api.weatherapi.com/v1/forecast.json?key=fe3bb5aeabc148c8924143421241001&q=" +
           cityName +
           "&days=8";
   var response = await http.get(Uri.parse(url));
@@ -71,64 +67,66 @@ class _MyHomePageState extends State<MyHomePage> {
   }
 
   Widget dayForecast(int dayDelta) {
-    String getDayOfWeek(String dateString) {
-      DateTime date = DateFormat('yyyy-MM-dd HH:mm').parse(dateString);
-      return DateFormat('EEEE').format(date);
-    }
-
     return Row(
-      mainAxisAlignment: MainAxisAlignment.center,
+      mainAxisAlignment: MainAxisAlignment.end,
       children: [
         Text(
-          'Carsamba',
+          (_city?.days?[dayDelta].weekday ?? ''),
           style: TextStyle(
-              fontSize: 18, color: const Color.fromARGB(170, 255, 255, 255)),
+            fontSize: 15,
+            color: const Color.fromARGB(170, 255, 255, 255),
+          ),
         ),
         const SizedBox(width: 16.0),
-        Image.network(
-          height: 35,
-          width: 35,
-          //_city?.condition_icon ??
-          //    "https://cdn.weatherapi.com/weather/64x64/day/116.png",
-          "https://cdn.weatherapi.com/weather/64x64/day/116.png",
+        Row(
+          crossAxisAlignment: CrossAxisAlignment.center,
+          children: [
+            Image.network(
+                height: 35,
+                width: 35,
+                (_city?.days[dayDelta].condition_icon ?? '')),
+            const SizedBox(width: 16.0),
+          ],
+        ),
+        Text(
+          'Yüksek: ' + (_city?.days?[dayDelta].max_c ?? '') + '°C',
+          style: TextStyle(
+            fontSize: 15,
+            color: const Color.fromARGB(170, 255, 255, 255),
+          ),
         ),
         const SizedBox(width: 16.0),
         Text(
-          'Yüksek: 16°C',
+          'Düşük: ' + (_city?.days?[dayDelta].min_c ?? '') + '°C',
           style: TextStyle(
-              fontSize: 18, color: const Color.fromARGB(170, 255, 255, 255)),
+            fontSize: 15,
+            color: const Color.fromARGB(170, 255, 255, 255),
+          ),
         ),
         const SizedBox(width: 16.0),
-        Text(
-          'Düşük: 5°C',
-          style: TextStyle(
-              fontSize: 18, color: const Color.fromARGB(170, 255, 255, 255)),
-        ),
       ],
     );
   }
 
-  Widget hourForecast(String date) {
+  Widget hourForecast(int hourDelta) {
     return Column(
       mainAxisAlignment: MainAxisAlignment.center,
       children: [
         const SizedBox(height: 10.0),
         Text(
-          "12",
+          _city?.hours[hourDelta].hour.toString() ?? '',
           style: TextStyle(
               fontSize: 18, color: const Color.fromARGB(170, 255, 255, 255)),
         ),
         Image.network(
           height: 35,
           width: 35,
-          //_city?.condition_icon ??
-          //    "https://cdn.weatherapi.com/weather/64x64/day/116.png",
-          "https://cdn.weatherapi.com/weather/64x64/day/116.png",
+          _city?.hours[hourDelta].condition_icon ?? '',
         ),
         Text(
-          "5°C",
+          (_city?.hours[hourDelta].temp_c.toString() ?? '') + '°C',
           style: TextStyle(
-              fontSize: 18, color: const Color.fromARGB(170, 255, 255, 255)),
+              fontSize: 14, color: const Color.fromARGB(170, 255, 255, 255)),
         ),
         const SizedBox(height: 10.0),
       ],
@@ -157,9 +155,9 @@ class _MyHomePageState extends State<MyHomePage> {
                 ),
               ),
               child: Text(
-                'Cities',
+                'Şehirler',
                 style: TextStyle(
-                  fontSize: 24,
+                  fontSize: 34,
                   color: Colors.white,
                 ),
               ),
@@ -170,13 +168,13 @@ class _MyHomePageState extends State<MyHomePage> {
                   onPressed: () {
                     _showNewItemDialog(context);
                   },
-                  child: Text("Add City"),
+                  child: Text("Şehir Ekle"),
                 ),
                 TextButton(
                   onPressed: () {
                     _clearCities();
                   },
-                  child: Text("Clear Cities"),
+                  child: Text("Temizle"),
                 )
               ],
             ),
@@ -224,10 +222,24 @@ class _MyHomePageState extends State<MyHomePage> {
                     (_city?.region ?? '') + ', ' + (_city?.country ?? ''),
                     style: TextStyle(fontSize: 18, color: Colors.white),
                   ),
-                  Image.network(
-                    //_city?.condition_icon ??
-                    //    "https://cdn.weatherapi.com/weather/64x64/day/116.png",
-                    "https://cdn.weatherapi.com/weather/64x64/day/116.png",
+                  FutureBuilder<String?>(
+                    future: Future.value(_city?.condition_icon ?? null),
+                    builder: (BuildContext context,
+                        AsyncSnapshot<String?> snapshot) {
+                      if (snapshot.connectionState == ConnectionState.waiting) {
+                        // Return a placeholder or loading indicator while waiting for data
+                        return CircularProgressIndicator();
+                      } else if (snapshot.hasError) {
+                        // Handle error state
+                        return Text('Error: ${snapshot.error}');
+                      } else {
+                        // If data is available, load the image using Image.network
+                        return Image.network(
+                          snapshot.data ??
+                              'https://cdn.weatherapi.com/weather/64x64/day/116.png',
+                        );
+                      }
+                    },
                   ),
                   Text(
                     ((_city?.temp_c) ?? '') + "°C",
@@ -336,17 +348,17 @@ class _MyHomePageState extends State<MyHomePage> {
                     child: Row(
                       mainAxisAlignment: MainAxisAlignment.center,
                       children: [
-                        hourForecast("date"),
+                        hourForecast(0),
                         const SizedBox(width: 30.0),
-                        hourForecast("date"),
+                        hourForecast(1),
                         const SizedBox(width: 30.0),
-                        hourForecast("date"),
+                        hourForecast(2),
                         const SizedBox(width: 30.0),
-                        hourForecast("date"),
+                        hourForecast(3),
                         const SizedBox(width: 30.0),
-                        hourForecast("date"),
+                        hourForecast(4),
                         const SizedBox(width: 30.0),
-                        hourForecast("date")
+                        hourForecast(5)
                       ],
                     )), //hour-forecast
                 const SizedBox(height: 16.0),
@@ -573,7 +585,8 @@ class _MyHomePageState extends State<MyHomePage> {
                         dayForecast(6),
                         const SizedBox(height: 15.0),
                       ],
-                    )),
+                    )), //day-forecast
+                const SizedBox(height: 10.0),
               ],
             ),
           ),
