@@ -268,10 +268,10 @@ class _MyHomePageState extends State<MyHomePage> {
       context: context,
       builder: (BuildContext context) {
         return AlertDialog(
-          title: Text("Add New City"),
+          title: Text("Yeni Şehir Ekle"),
           content: TextFormField(
             controller: newItemController,
-            decoration: InputDecoration(labelText: "Enter City Name"),
+            decoration: InputDecoration(labelText: "Şehir ismini giriniz:"),
           ),
           actions: [
             ElevatedButton(
@@ -282,14 +282,14 @@ class _MyHomePageState extends State<MyHomePage> {
                 newItemController.clear();
                 Navigator.pop(context);
               },
-              child: Text("Add"),
+              child: Text("Ekle"),
             ),
             TextButton(
               onPressed: () {
                 newItemController.clear();
                 Navigator.pop(context);
               },
-              child: Text("Cancel"),
+              child: Text("İptal"),
             ),
           ],
         );
